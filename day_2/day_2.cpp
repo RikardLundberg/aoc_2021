@@ -5,19 +5,22 @@
 
 int main()
 {
-	int depth = 0, horizontal = 0;
+	int depth = 0, horizontal = 0, aim = 0;
 	std::string direction;
 
 	while (std::cin >> direction && direction != "eof")
 	{
 		int amount;
 		std::cin >> amount;
-		if (direction == "forward")
+		if (direction == "forward") 
+		{
 			horizontal += amount;
+			depth += aim * amount;
+		}
 		else if (direction == "up")
-			depth -= amount;
+			aim -= amount;
 		else if (direction == "down")
-			depth += amount;
+			aim += amount;
 	}
 
 	int output = depth * horizontal;
