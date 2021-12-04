@@ -7,7 +7,7 @@ class board
 {
 public:
 	std::vector<std::vector<int>> matrix;
-	int winSum;
+	int winSum = 0;
 	std::vector<std::vector<bool>> marked;
 	bool drawNumber(int number) {
 		for (int i = 0; i < matrix.size(); i++) {
@@ -62,13 +62,19 @@ int main()
 int PlayBingo(std::vector<int> &drawnNumbers, std::vector<board> &boards) {
 	for (int drawnNumber : drawnNumbers)
 	{
+		std::vector<int> markForDeletion;
 		for (int i = 0; i < boards.size(); i++)
 		{
 			if (boards[i].drawNumber(drawnNumber))
 			{
-				return boards[i].winSum * drawnNumber;
+				if (boards.size() == 1)
+					return boards[i].winSum * drawnNumber;
+				else
+					markForDeletion.push_back(i);
 			}
 		}
+		for (int i = markForDeletion.size() - 1; i >= 0; i--)
+			boards.erase(boards.begin() + markForDeletion[i]);
 	}
 	return -1;
 }
