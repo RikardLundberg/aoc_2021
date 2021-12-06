@@ -19,12 +19,24 @@ int main()
 	}
 	fishes.push_back(std::stoi(fishString));
 
+	std::vector<long long int> fishSizes;
+	for (int i = 1; i < 6; i++) {
+		std::cout << "Calculating fish.. " << i;
+		fishSizes.push_back(CalculateFishChildren(i+1, days));
+		std::cout << " ... " << fishSizes[i-1] << std::endl;
+	}
+	/*
+	fishSizes.push_back(6206821033);
+	fishSizes.push_back(5617089148);
+	fishSizes.push_back(5217223242);
+	fishSizes.push_back(4726100874);
+	fishSizes.push_back(4368232009);
+	*/
+
 	long long int totalCount = 0;
-	for (int fish : fishes) {
-		//totalCount++;
-		std::cout << "Calculating fish.. " << fish;
-		totalCount += CalculateFishChildren(fish+1, days);
-		std::cout << " ... " << totalCount << std::endl;
+	for (int fish : fishes)
+	{
+		totalCount += fishSizes[fish-1];
 	}
 
 	std::cout << "Number of lanternfish: " << totalCount;
