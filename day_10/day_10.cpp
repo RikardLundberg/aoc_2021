@@ -1,18 +1,20 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 bool isCloser(char potentialCloser);
 bool matches(char opener, char closer);
-int getPoints(char closer);
+long long int getPoints(std::vector<char> openerStack);
 
 int main()
 {
-	int highScore = 0;
+	std::vector<long long int> highScores;
 	std::string input;
 	while (std::cin >> input && input != "eof")
 	{
 		std::vector<char> openerStack;
+		bool failed = false;
 		for (int i = 0; i < input.size(); i++) 
 		{
 			if (isCloser(input[i])) {
@@ -21,32 +23,46 @@ int main()
 					openerStack.pop_back();
 				else
 				{
-					highScore += getPoints(input[i]);
+					failed = true;
 					break;
 				}
 			}
 			else
 				openerStack.push_back(input[i]);
 		}
+
+		if (!failed)
+			highScores.push_back(getPoints(openerStack));
 	}
 
-	std::cout << "HighScore: " << highScore;
+	std::sort(highScores.begin(), highScores.end());
+	std::cout << "HighScore: " << highScores[highScores.size()/2];
 }
 
-int getPoints(char closer)
+long long int getPoints(std::vector<char> openerStack)
 {
-	switch (closer)
-	{
-	case ')':
-		return 3;
-	case ']':
-		return 57;
-	case '}':
-		return 1197;
-	case '>':
-		return 25137;
+	long long int points = 0;
+	for (int i = openerStack.size() - 1; i >= 0; i--) {
+		points *= 5;
+		switch (openerStack[i])
+		{
+		case '(':
+			points += 1;
+			break;
+		case '[':
+			points += 2;
+			break;
+		case '{':
+			points += 3;
+			break;
+		case '<':
+			points += 4;
+			break;
+		default:
+			throw;
+		}
 	}
-	throw;
+	return points;
 }
 
 bool matches(char opener, char closer)
