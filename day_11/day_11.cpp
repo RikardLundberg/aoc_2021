@@ -6,12 +6,9 @@
 void increaseNeighbours(int i, int j);
 void increaseNeighbour(int i, int j);
 std::vector<std::vector<int>> matrix;
-int flashCount = 0;
 
 int main()
 {
-	int numberOfSteps = 100;
-
 	std::string input;
 	while (std::cin >> input && input != "eof")
 	{
@@ -22,7 +19,9 @@ int main()
 	}
 
 	int currentStep = 0;
-	while (currentStep != numberOfSteps) {
+	int flashAmount = matrix.size() * matrix[0].size();
+	while (true) {
+		int flashCount = 0;
 		for (int i = 0; i < matrix.size(); i++)
 		{
 			for (int j = 0; j < matrix[i].size(); j++)
@@ -43,11 +42,12 @@ int main()
 				}
 			}
 		}
-
 		currentStep++;
+		if (flashCount == flashAmount)
+			break;
 	}
 
-	std::cout << flashCount;
+	std::cout << currentStep;
 }
 
 
@@ -70,7 +70,6 @@ void increaseNeighbour(int i, int j)
 	matrix[i][j]++;
 
 	if (matrix[i][j] == 10) {
-		//flashCount++;
 		increaseNeighbours(i, j);
 	}
 }
