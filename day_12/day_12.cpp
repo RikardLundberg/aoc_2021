@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 class node
 {
@@ -11,7 +12,9 @@ public:
 };
 
 std::vector<node> parseNodes(std::vector<std::string> inputs);
-int visitNeighbours(node &node, std::vector<std::string> visited);
+void visitNeighbours(node &node, std::vector<std::string> visited, std::string path, bool hasVisitedTwice);
+std::vector<std::string> foundPaths;
+std::vector<std::string> smallCaveNames;
 
 int main()
 {
@@ -25,35 +28,61 @@ int main()
     std::vector<node> nodes = parseNodes(inputs);
 
     int startNode = -1;
-    for (int i = 0; i < nodes.size(); i++)
+    for (int i = 0; i < nodes.size(); i++) {
         if (nodes[i].name == "start")
             startNode = i;
+        else if (nodes[i].name != "end" && !nodes[i].isLarge)
+            smallCaveNames.push_back(nodes[i].name);
+    }
+
     node start = nodes[startNode];
     std::vector<std::string> visited;
-    int paths = visitNeighbours(start, visited);
+    visitNeighbours(start, visited, "", false);
 
-    std::cout << "Number of paths: " << paths;
+
+    std::cout << "Number of paths: " << foundPaths.size();
 }
 
-int visitNeighbours(node &node, std::vector<std::string> visited)
+
+void visitNeighbours(node &node, std::vector<std::string> visited, std::string path, bool hasVisitedTwice)
 {
-    int paths = 0;
+    path += node.name + ",";
     if (node.name == "end")
-        return 1;
+    {
+        foundPaths.push_back(path);
+        return;
+    }
 
     if (!node.isLarge)
         visited.push_back(node.name);
 
     for (int i = 0; i < node.neighbours.size(); i++)
     {
+        if (node.neighbours[i]->name == "start")
+            continue;
         bool visitNeighbour = true;
-        for (std::string str : visited)
-            if (node.neighbours[i]->name == str)
-                visitNeighbour = false;
-        if (visitNeighbour)
-            paths += visitNeighbours(*node.neighbours[i], visited);
+
+        if (!node.neighbours[i]->isLarge) {
+            for (std::string str : visited) {
+                if (node.neighbours[i]->name == str)
+                    visitNeighbour = false;
+            }
+            //if (path.find(node.neighbours[i]->name) != std::string::npos)
+            //    visitNeighbour = false;
+        }
+        bool visitedTwiceOnThis = false;
+        if (!visitNeighbour && !hasVisitedTwice && !node.neighbours[i]->isLarge) {
+            visitNeighbour = true;
+            hasVisitedTwice = true;
+            visitedTwiceOnThis = true;
+        }
+
+        if (visitNeighbour) {
+            visitNeighbours(*node.neighbours[i], visited, path, hasVisitedTwice);
+            if(visitedTwiceOnThis)
+                hasVisitedTwice = false;
+        }
     }
-    return paths;
 }
 
 std::vector<node> parseNodes(std::vector<std::string> inputs)
