@@ -12,7 +12,7 @@ public:
 };
 
 std::vector<node> parseNodes(std::vector<std::string> inputs);
-void visitNeighbours(node &node, std::vector<std::string> visited, std::string path, bool hasVisitedTwice);
+void visitNeighbours(node &node, std::string path, bool hasVisitedTwice);
 std::vector<std::string> foundPaths;
 std::vector<std::string> smallCaveNames;
 
@@ -21,9 +21,7 @@ int main()
     std::string input;
     std::vector<std::string> inputs;
     while (std::cin >> input && input != "eof")
-    {
         inputs.push_back(input);
-    }
 
     std::vector<node> nodes = parseNodes(inputs);
 
@@ -36,15 +34,13 @@ int main()
     }
 
     node start = nodes[startNode];
-    std::vector<std::string> visited;
-    visitNeighbours(start, visited, "", false);
-
+    visitNeighbours(start, "", false);
 
     std::cout << "Number of paths: " << foundPaths.size();
 }
 
 
-void visitNeighbours(node &node, std::vector<std::string> visited, std::string path, bool hasVisitedTwice)
+void visitNeighbours(node &node, std::string path, bool hasVisitedTwice)
 {
     path += node.name + ",";
     if (node.name == "end")
@@ -53,9 +49,6 @@ void visitNeighbours(node &node, std::vector<std::string> visited, std::string p
         return;
     }
 
-    if (!node.isLarge)
-        visited.push_back(node.name);
-
     for (int i = 0; i < node.neighbours.size(); i++)
     {
         if (node.neighbours[i]->name == "start")
@@ -63,12 +56,8 @@ void visitNeighbours(node &node, std::vector<std::string> visited, std::string p
         bool visitNeighbour = true;
 
         if (!node.neighbours[i]->isLarge) {
-            for (std::string str : visited) {
-                if (node.neighbours[i]->name == str)
-                    visitNeighbour = false;
-            }
-            //if (path.find(node.neighbours[i]->name) != std::string::npos)
-            //    visitNeighbour = false;
+            if (path.find(","+node.neighbours[i]->name+",") != std::string::npos)
+                visitNeighbour = false;
         }
         bool visitedTwiceOnThis = false;
         if (!visitNeighbour && !hasVisitedTwice && !node.neighbours[i]->isLarge) {
@@ -78,7 +67,7 @@ void visitNeighbours(node &node, std::vector<std::string> visited, std::string p
         }
 
         if (visitNeighbour) {
-            visitNeighbours(*node.neighbours[i], visited, path, hasVisitedTwice);
+            visitNeighbours(*node.neighbours[i], path, hasVisitedTwice);
             if(visitedTwiceOnThis)
                 hasVisitedTwice = false;
         }
