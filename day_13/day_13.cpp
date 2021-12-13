@@ -30,7 +30,35 @@ int main()
 		removeDuplicates();
 	}
 
-	std::cout << "Coord count: " << coords.size();
+	int high_x = 0;
+	int high_y = 0;
+	for (auto coord : coords)
+	{
+		if (coord[0] > high_x)
+			high_x = coord[0];
+		if (coord[1] > high_y)
+			high_y = coord[1];
+	}
+
+	int n = 0;
+	std::vector<int> currCoord = coords[n]; //they are sorted
+	for (int i = 0; i < high_x + 1; i++)
+	{
+		for (int j = 0; j < high_y + 1; j++)
+		{
+			if (currCoord[0] == i && currCoord[1] == j)
+			{
+				std::cout << "#";
+				if (n < coords.size() - 1)
+					currCoord = coords[++n];
+				else
+					break;
+			}
+			else
+				std::cout << ".";
+		}
+		std::cout << std::endl;
+	}
 }
 
 void fold_x(int x)
