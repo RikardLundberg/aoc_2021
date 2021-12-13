@@ -42,22 +42,28 @@ int main()
 
 	int n = 0;
 	std::vector<int> currCoord = coords[n]; //they are sorted
+	std::vector<std::string> outputRows;
+	for (int i = 0; i < high_y + 1; i++)
+		outputRows.push_back("");
 	for (int i = 0; i < high_x + 1; i++)
 	{
 		for (int j = 0; j < high_y + 1; j++)
 		{
 			if (currCoord[0] == i && currCoord[1] == j)
 			{
-				std::cout << "#";
+				outputRows[j] += "#";
 				if (n < coords.size() - 1)
 					currCoord = coords[++n];
 				else
 					break;
 			}
 			else
-				std::cout << ".";
+				outputRows[j] += ".";
 		}
-		std::cout << std::endl;
+	}
+	for (int i = 0; i < outputRows.size(); i++)
+	{
+		std::cout << outputRows[i] << std::endl;
 	}
 }
 
