@@ -3,32 +3,30 @@
 #include <vector>
 
 void parseInput();
-void addPolym(std::string polym, std::vector<std::pair<std::string, int>>& polymer);
+void addPolym(std::string polym, std::vector<std::pair<std::string, long long int>>& polymer, long long int val);
 
 std::vector<std::pair<std::string, std::string>> rules;
-std::vector<std::pair<std::string, int>> currentPolymer;
+std::vector<std::pair<std::string, long long int>> currentPolymer;
 std::string first, last;
 
 int main()
 {
 	parseInput();
-	int steps = 10;
+	int steps = 40;
 
 	for (int i = 0; i < steps; i++)
 	{
-		std::vector<std::pair<std::string, int>> newPolymer;
+		std::vector<std::pair<std::string, long long int>> newPolymer;
 		for (int i = 0; i < currentPolymer.size(); i++)
 		{
 			if (currentPolymer[i].second > 0)
 			{
 				for (auto rule : rules) {
 					if (rule.first == currentPolymer[i].first) {
-						for (int j = 0; j < currentPolymer[i].second; j++) {
-							auto first = currentPolymer[i].first.substr(0, 1) + rule.second;
-							auto second = rule.second + currentPolymer[i].first.substr(1);
-							addPolym(first, newPolymer);
-							addPolym(second, newPolymer);
-						}
+						auto first = currentPolymer[i].first.substr(0, 1) + rule.second;
+						auto second = rule.second + currentPolymer[i].first.substr(1);
+						addPolym(first, newPolymer, currentPolymer[i].second);
+						addPolym(second, newPolymer, currentPolymer[i].second);
 					}
 				}
 			}
@@ -36,19 +34,17 @@ int main()
 		currentPolymer = newPolymer;
 	}
 
-	std::vector<std::pair<std::string, int>> countPolymer;
+	std::vector<std::pair<std::string, long long int>> countPolymer;
 	for (auto polymPair : currentPolymer)
 	{
-		for (int i = 0; i < polymPair.second; i++) {
-			addPolym(polymPair.first.substr(0, 1), countPolymer);
-			addPolym(polymPair.first.substr(1), countPolymer);
-		}
+		addPolym(polymPair.first.substr(0, 1), countPolymer, polymPair.second);
+		addPolym(polymPair.first.substr(1), countPolymer, polymPair.second);
 	}
 
-	int high = -1, low = -1;
+	long long int high = -1, low = -1;
 	for (auto polymPair : countPolymer)
 	{
-		int compareVal = polymPair.second;
+		long long int compareVal = polymPair.second;
 		if (polymPair.first == first)
 			compareVal++;
 		if (polymPair.first == last)
@@ -79,21 +75,13 @@ void parseInput()
 		rules.push_back(rule);
 	}
 
-	/*for (auto rule : rules)
-	{
-		std::pair<std::string, int> possibleVal;
-		possibleVal.first = rule.first;
-		possibleVal.second = 0;
-		currentPolymer.push_back(possibleVal);
-	}*/
-
 	std::string previous = "/";
 	for (int i = 0; i < startVal.size(); i++)
 	{
 		if (previous != "/")
 		{
 			std::string current = previous + startVal[i];
-			addPolym(current, currentPolymer);
+			addPolym(current, currentPolymer, 1);
 		}
 		previous = startVal[i];
 	}
@@ -102,13 +90,13 @@ void parseInput()
 }
 
 
-void addPolym(std::string polym, std::vector<std::pair<std::string, int>>& polymer)
+void addPolym(std::string polym, std::vector<std::pair<std::string, long long int>>& polymer, long long int val)
 {
-	for (auto &poly : polymer) {
+	for (auto& poly : polymer) {
 		if (poly.first == polym) {
-			poly.second++;
+			poly.second += val;
 			return;
 		}
 	}
-	polymer.emplace_back(polym, 1);
+	polymer.emplace_back(polym, val);
 }
