@@ -3,6 +3,8 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <chrono>
+#include <list>
 
 void parseInput();
 int dijkstra(int pos);
@@ -11,9 +13,13 @@ int rowLength = -1;
 
 int main()
 {
+	auto start_time = std::chrono::high_resolution_clock::now();
 	parseInput();
 	int result = dijkstra(0);
-	std::cout << "Risk level: " << result;
+	auto end_time = std::chrono::high_resolution_clock::now();
+	std::cout << "Risk level: " << result << std::endl;
+	auto time = end_time - start_time;
+	std::cout << "Time elapsed: " << time / std::chrono::milliseconds(1) << "ms";
 }
 
 int miniDist(std::vector<int> distance, std::vector<bool> visited)
@@ -48,9 +54,9 @@ std::vector<int> getNeighbours(int position)
 
 int dijkstra(int pos)
 {
-	std::vector<int> distance;
-	std::vector<bool> visited;
-	std::vector<int> prev;
+	std::list<int> distance;
+	std::list<bool> visited;
+	std::list<int> prev;
 
 	for (int i = 0; i < risks.size(); i++)
 	{
