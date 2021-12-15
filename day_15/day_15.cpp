@@ -17,11 +17,13 @@ public:
 void parseInput();
 int dijkstra(int x, int y);
 std::vector<std::vector<node>> nodes;
+std::chrono::time_point<std::chrono::steady_clock> start_time;
 
 int main()
 {
 	parseInput();
-	auto start_time = std::chrono::high_resolution_clock::now();
+	std::cout << "Finished parsing, starting clock.." << std::endl;
+	start_time = std::chrono::high_resolution_clock::now();
 	int result = dijkstra(0, 0);
 	auto end_time = std::chrono::high_resolution_clock::now();
 	std::cout << "Risk level: " << result << std::endl;
@@ -56,6 +58,9 @@ int dijkstra(int x, int y)
 	nodes[x][y].distance = 0;
 	while (visitCount < maxVisits)
 	{
+		if ((visitCount % 1000) == 0) {
+			std::cout << "Visitcount is now.. " << visitCount << ", TotalTime elapsed: " << (std::chrono::high_resolution_clock::now() - start_time) / std::chrono::milliseconds(1) << "ms" << std::endl;
+		}
 		node* m = miniDist();
 		m->visited = true;
 		visitCount++;
@@ -88,19 +93,53 @@ std::vector<std::pair<int, int>> getNeighbours(int x, int y)
 void parseInput()
 {
 	std::string input;
-	while (std::cin >> input && input != "eof")
+	std::vector<std::string> inputs;
+	while (std::cin >> input && input != "eof") {
+		int startSize = input.size();
+		for (int j = 1; j < 5; j++) {
+			for (int i = 0; i < startSize; i++)
+			{
+				int inp = input[i] - 48 + j;
+				if (inp > 9) inp -= 9;
+				input += std::to_string(inp);
+			}
+		}
+		inputs.push_back(input);
+	}
+
+	std::vector<std::string> extraInputs;
+	for (int j = 1; j < 5; j++)
+	{
+		int startSize = inputs.size();
+		for (std::string newInput : inputs)
+		{
+			std::string extraInput;
+			for (int i = 0; i < newInput.size(); i++) {
+				int inp = newInput[i] - 48 + j;
+				if (inp > 9) inp -= 9;
+				extraInput += std::to_string(inp);
+			}
+			extraInputs.push_back(extraInput);
+		}
+	}
+
+	for (std::string str : extraInputs)
+		inputs.push_back(str);
+
+	//while (std::cin >> input && input != "eof")
+	for(std::string finalInput : inputs)
 	{
 		std::vector<node> nodeInput;
-		for (int i = 0; i < input.size(); i++) {
+		for (int i = 0; i < finalInput.size(); i++) {
 			node currentNode;
-			currentNode.risk = input[i] - 48;
+			currentNode.risk = finalInput[i] - 48;
 			nodeInput.push_back(currentNode);
 		}
 		nodes.push_back(nodeInput);
 	}
 
 	for (int i = 0; i < nodes.size(); i++) {
-		for(int j = 0; j < nodes[i].size(); j++)
+		for (int j = 0; j < nodes[i].size(); j++)
 			nodes[i][j].neighbours = getNeighbours(i, j);
 	}
 }
