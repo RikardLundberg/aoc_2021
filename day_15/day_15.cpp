@@ -7,7 +7,6 @@
 
 class node {
 public:
-	//std::vector<node*> neighbours;
 	std::vector<std::pair<int, int>> neighbours;
 	int risk;
 	bool visited = false;
@@ -17,15 +16,12 @@ public:
 
 void parseInput();
 int dijkstra(int x, int y);
-//std::vector<int> risks;
-//std::vector<std::vector<int>> risks;
-//std::vector<std::vector<std::vector<std::pair<int, int>>>> neighbours;
 std::vector<std::vector<node>> nodes;
 
 int main()
 {
-	auto start_time = std::chrono::high_resolution_clock::now();
 	parseInput();
+	auto start_time = std::chrono::high_resolution_clock::now();
 	int result = dijkstra(0, 0);
 	auto end_time = std::chrono::high_resolution_clock::now();
 	std::cout << "Risk level: " << result << std::endl;
@@ -65,19 +61,13 @@ int dijkstra(int x, int y)
 		visitCount++;
 
 		if (m->isGoal)
-		{
 			return m->distance;
-		}
 
 		for (std::pair<int, int> n : m->neighbours)
 		{
-			//node* neighbour = &nodes[n.first][n.second];
 			int alt = m->distance + nodes[n.first][n.second].risk;
 			if (alt < nodes[n.first][n.second].distance)
-			{
 				nodes[n.first][n.second].distance = alt;
-				//prev[neighbour.first][neighbour.second] = m;
-			}
 		}
 
 	}
@@ -92,14 +82,6 @@ std::vector<std::pair<int, int>> getNeighbours(int x, int y)
 	if (x < nodes[0].size() - 1) neighbours.emplace_back(x + 1, y);
 	if (y > 0) neighbours.emplace_back(x, y - 1);
 	if (y < nodes.size() - 1) neighbours.emplace_back(x, y + 1);
-	/*if (position > 0 && (position - 1 % rowLength) < rowLength - 1)
-		neighbours.push_back(&nodes[position - 1]);
-	if (position < nodes.size() - 1 && position + 1 % rowLength != 0)
-		neighbours.push_back(&nodes[position + 1]);
-	if (position - rowLength > 0)
-		neighbours.push_back(&nodes[position - rowLength]);
-	if (position + rowLength < nodes.size())
-		neighbours.push_back(&nodes[position + rowLength]);*/
 	return neighbours;
 }
 
@@ -108,7 +90,6 @@ void parseInput()
 	std::string input;
 	while (std::cin >> input && input != "eof")
 	{
-		//rowLength = input.size();
 		std::vector<node> nodeInput;
 		for (int i = 0; i < input.size(); i++) {
 			node currentNode;
@@ -123,25 +104,3 @@ void parseInput()
 			nodes[i][j].neighbours = getNeighbours(i, j);
 	}
 }
-
-/*void parseInput()
-{
-	std::string input;
-	while (std::cin >> input && input != "eof")
-	{
-		rowLength = input.size();
-		std::vector<int> riskInput;
-		for (int i = 0; i < input.size(); i++)
-			riskInput.push_back(input[i] - 48);
-		risks.push_back(riskInput);
-	}
-	for (int i = 0; i < risks.size(); i++) {
-		std::vector<std::vector<std::pair<int, int>>> neighbourInputs;
-		for (int j = 0; j < risks[i].size(); j++) {
-			std::vector<std::pair<int, int>> neighboursInput = getNeighbours(i, j);
-			neighbourInputs.push_back(neighboursInput);
-		}
-		neighbours.push_back(neighbourInputs);
-	}
-}*/
-
