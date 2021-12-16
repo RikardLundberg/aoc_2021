@@ -7,100 +7,88 @@ int TranslateBinary(std::string val);
 void parseInput();
 std::chrono::time_point<std::chrono::steady_clock> start_time;
 std::string HexaToBinary(char hexa);
-int ReadOperator(int currentCounter);
+void ReadOperator();
 std::string binaryInput = "";
 int totalVersion = 0;
+int counter = 0;
 
 int main()
 {
 	parseInput();
 
-	for (int i = 0; i < binaryInput.size(); i++)
+	std::string versionStr, typeStr;
+	versionStr += binaryInput.substr(0, 3);
+	int version = TranslateBinary(versionStr);
+	totalVersion += version;
+	typeStr += binaryInput.substr(3, 3);
+	int type = TranslateBinary(typeStr);
+	counter = 6;
+	if (type == 4)
 	{
-		int counter = 0;
-		std::string versionStr, typeStr;
-		versionStr += binaryInput.substr(0, 3);
-		int version = TranslateBinary(versionStr);
-		totalVersion += version;
-		typeStr += binaryInput.substr(3,3);
-		int type = TranslateBinary(typeStr);
-		counter = 6;
-		if (type == 4)
+		bool lastGroup = false;
+		while (!lastGroup)
 		{
-			bool lastGroup = false;
-			while (!lastGroup)
-			{
-				std::string subGroup;
-				subGroup += binaryInput.substr(counter, 5); 
-				counter += 5;
-				if (subGroup[0] == '0')
-					lastGroup = true;
-			}
+			std::string subGroup;
+			subGroup += binaryInput.substr(counter, 5);
+			counter += 5;
+			if (subGroup[0] == '0')
+				lastGroup = true;
 		}
-		else
-		{
-			counter += ReadOperator(counter);
-		}
-
-		for (int j = 0; j < counter; j++)
-			i++;
-
-		int extraZeroes = 4 - (counter % 4);
-		for (int z = 0; z < extraZeroes; z++)
-			i++;
 	}
-
+	else
+	{
+		ReadOperator();
+	}
 
 	std::cout << "Total Version: " << totalVersion << std::endl;
 }
 
-int ReadOperator(int currentCounter)
+void ReadOperator()
 {
 	bool isFifteen = false; // else eleven
-	if (binaryInput[currentCounter] == '0')
+	if (binaryInput[counter] == '0')
 		isFifteen = true;
-	currentCounter++;
+	counter++;
 	int Lcounter = isFifteen ? 15 : 11;
 	std::string Lstr;
 	for (int j = 0; j < Lcounter; j++)
 	{
-		Lstr += binaryInput.substr(currentCounter, 1);
-		currentCounter++;
+		Lstr += binaryInput.substr(counter, 1);
+		counter++;
 	}
 	int L = TranslateBinary(Lstr);
-	int subPackSize = L + currentCounter;
+	int subPackSize = L + counter;
 	bool morePackages = isFifteen || L > 0;
 	while (morePackages)
 	{
 		for (int sub = 0; sub < L; sub++)
 		{
-			totalVersion += TranslateBinary(binaryInput.substr(currentCounter, 3));
-			currentCounter += 3;
-			int type = TranslateBinary(binaryInput.substr(currentCounter, 3));
-			currentCounter += 3;
+			totalVersion += TranslateBinary(binaryInput.substr(counter, 3));
+			counter += 3;
+			int type = TranslateBinary(binaryInput.substr(counter, 3));
+			counter += 3;
 			if (type != 4)
-				currentCounter = ReadOperator(currentCounter);
+				ReadOperator();
 			else
 			{
 				bool lastGroup = false;
 				while (!lastGroup)
 				{
 					std::string subGroup;
-					subGroup += binaryInput.substr(currentCounter, 5);
-					currentCounter += 5;
+					subGroup += binaryInput.substr(counter, 5);
+					counter += 5;
 					if (subGroup[0] == '0')
 						lastGroup = true;
 				}
 			}
 			if (isFifteen) {
-				morePackages = (currentCounter < subPackSize);
+				morePackages = (counter < subPackSize);
 				break;
 			}
 		}
 		if (!isFifteen)
 			morePackages = false;
 	}
-	return currentCounter;
 }
 
 std::string HexaToBinary(char hexa)
