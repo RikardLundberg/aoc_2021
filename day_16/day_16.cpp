@@ -164,14 +164,14 @@ long long int ReadOperator(int type)
 	}
 	else if (2 == type) {
 		long long int min = INT_MAX;
-		for (int val : values)
+		for (long long int val : values)
 			if (val < min)
 				min = val;
 		return min;
 	}
 	else if (3 == type) {
 		long long int max = INT_MIN;
-		for (int val : values)
+		for (long long int val : values)
 			if (val > max)
 				max = val;
 		return max;
