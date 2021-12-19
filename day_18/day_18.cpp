@@ -24,13 +24,16 @@ vector<node> nodes;
 void parseInput();
 node add(node first, node second);
 void reduce(node& input);
-//int getMagnitude(std::string input);
+long long int getMagnitude(node& input);
 
 int explosions = 0;
 int splitL = 0;
 int splitR = 0;
 int lookingForLow = 0;
 int foundLow = 0;
+int changedFirst = 0;
+int dismissed = 0;
+int explosionHandledCount = 0;
 
 int main()
 {
@@ -76,16 +79,37 @@ int main()
 		cout << "Split right: " << splitR << endl;
 		cout << "Look low: " << lookingForLow << endl;
 		cout << "Found low: " << foundLow << endl;
+		cout << "Changed first: " << changedFirst << endl;
+		cout << "Dismissed lows: " << dismissed << endl;
+		cout << "Explosions handled: " << explosionHandledCount << endl;
 
 		cout << endl << endl << "Next iteration: " << endl;
 
 	}
 
 
+	long long int mag = getMagnitude(sumNode);
 
 
+	std::cout << "Final magnitude is: " << mag;
+}
 
-	//std::cout << "Final magnitude is: " << mag;
+long long int getMagnitude(node& input)
+{
+	long long int returnVal = 0;
+	if (input.firstLit == -1)
+		returnVal += 3 * getMagnitude(input.nodes[0]);
+	else
+		returnVal += (3 * input.firstLit);
+
+	int secondNodeLoc = input.nodes.size() > 1 ? 1 : 0;
+
+	if (input.secondLit == -1)
+		returnVal += 2 * getMagnitude(input.nodes[secondNodeLoc]);
+	else
+		returnVal += (2 * input.secondLit);
+
+	return returnVal;
 }
 
 node split(int input) {
@@ -105,6 +129,7 @@ int changeHigher = -1;
 bool explosionHandled = true;
 int lastNumberId = -1;
 int changeId = -1;
+bool changeFirst = true;
 
 bool changed = true;
 bool splitting = false;
@@ -120,8 +145,8 @@ void reduceNode(node& input, int level)
 				throw;
 			}
 			explosions++;
+			changeLower = input.firstLit;
 			if (lastNumberId != -1) {
-				changeLower = input.firstLit;
 				changeId = lastNumberId;
 			}
 			changeHigher = input.secondLit;
@@ -168,11 +193,11 @@ void reduceNode(node& input, int level)
 		input.firstLit += changeHigher;
 		changeHigher = -1;
 	}
-	else if (input.secondLit != -1 && changeHigher != -1)
+	/*else if (input.secondLit != -1 && changeHigher != -1)
 	{
 		input.secondLit += changeHigher;
 		changeHigher = -1;
-	}
+	}*/
 
 	std::vector<int> removeElements;
 	bool explosionImmunity = false;
@@ -185,15 +210,29 @@ void reduceNode(node& input, int level)
 			input.firstLit = 0;
 			explosionHandled = true;
 			//explosionImmunity = true;
-			/*if (input.secondLit != -1 && changeHigher != -1) {
+			if (input.secondLit != -1 && changeHigher != -1) {
 				input.secondLit += changeHigher;
 				changeHigher = -1;
-			}*/
+			}
+			if (changeId == -1) {
+				dismissed++;
+				changeLower = -1;
+			}
+			explosionHandledCount++;
 		}
 	}
 	else //if (!explosionImmunity)
+	{
+		changeFirst = true;
 		lastNumberId = input.id;
+	}
 
+
+	if (input.secondLit != -1 && changeHigher != -1)
+	{
+		input.secondLit += changeHigher;
+		changeHigher = -1;
+	}
 
 	if (input.secondLit == -1) {
 		reduceNode(input.nodes[secondNodeLoc], level + 1);
@@ -207,17 +246,25 @@ void reduceNode(node& input, int level)
 				input.firstLit += changeLower;
 				changeId = -1;
 				changeLower = -1;
+				changedFirst++;
 			}
+			else if (changeId == -1) {
+				dismissed++;
+				changeLower = -1;
+			}
+			explosionHandledCount++;
 		}
 	}
 	else //if (!explosionImmunity)
+	{
+		changeFirst = false;
 		lastNumberId = input.id;
-
-	if (!explosionImmunity && input.secondLit != -1 && changeHigher != -1)
+	}
+	/*if (!explosionImmunity && input.secondLit != -1 && changeHigher != -1)
 	{
 		input.secondLit += changeHigher;
 		changeHigher = -1;
-	}
+	}*/
 
 	for (int i = removeElements.size() - 1; i >= 0; i--)
 		input.nodes.erase(input.nodes.begin() + removeElements[i]);
@@ -233,16 +280,17 @@ void reduceNode(node& input, int level)
 void changeLowerOnId(node& input) {
 	if (input.id == changeId)
 	{
-		foundLow++;
 		if (input.secondLit != -1 && changeLower != -1)
 		{
 			input.secondLit += changeLower;
 			changeLower = -1;
+			foundLow++;
 		}
 		else if (input.firstLit != -1 && changeLower != -1)
 		{
 			input.firstLit += changeLower;
 			changeLower = -1;
+			foundLow++;
 		}
 	}
 	else
@@ -276,21 +324,24 @@ void splitReduceNode(node& input)
 			input.firstLit = -1;
 			changed = true;
 		}
-		else if (input.secondLit > -1 && input.secondLit > 9)
-		{
-			splitR++;
-			node newNode = split(input.secondLit);
-			newNode.id = ++nodeId;
-			input.nodes.push_back(newNode);
-			input.secondLit = -1;
-			changed = true;
-		}
-		int secondNodeLoc = input.nodes.size() > 1 ? 1 : 0;
-		if (input.firstLit == -1) {
+		else if(input.firstLit == -1)
 			splitReduceNode(input.nodes[0]);
-		}
-		if (input.secondLit == -1) {
-			splitReduceNode(input.nodes[secondNodeLoc]);
+
+		int secondNodeLoc = input.nodes.size() > 1 ? 1 : 0;
+
+
+		if (!changed) {
+			if (input.secondLit > -1 && input.secondLit > 9)
+			{
+				splitR++;
+				node newNode = split(input.secondLit);
+				newNode.id = ++nodeId;
+				input.nodes.push_back(newNode);
+				input.secondLit = -1;
+				changed = true;
+			}
+			else if (input.secondLit == -1)
+				splitReduceNode(input.nodes[secondNodeLoc]);
 		}
 	}
 }
