@@ -37,61 +37,40 @@ int explosionHandledCount = 0;
 
 int main()
 {
-	//vector<string> inputs = parseInput();
-
-	//string inp = "[[[[0,7],4],[15,[0,13]]],[1,1]]"; //split
-	//string inp = "[[[[[9,8],1],2],3],4]"; //explode
-	//while (reduce(inp));
-
-	//string inp = "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]"; //magnitude
-	//string inp = "[1,9]"; //magnitude
-	//int mag = getMagnitude(inp);
-
-	/*string sumStr = inputs[0];
-	for (int i = 1; i < inputs.size(); i++)
-	{
-		string addStr = add(sumStr, inputs[i]);
-		reduce(addStr);
-		sumStr = addStr;
-	}
-
-	int mag = getMagnitude(sumStr);
-	*/
-
-	/*parseInput();
-	reduce(nodes[0]);
-
-
-
-	return 0;
-	*/
 	parseInput();
-	node sumNode = nodes[0];
-	for (int i = 1; i < nodes.size(); i++)
+
+	long long int highestMag = -1;
+
+	
+	for (int i = 0; i < nodes.size(); i++)
 	{
-		node addNode = add(sumNode, nodes[i]);
-		reduce(addNode);
-		sumNode = addNode;
-
-		cout << endl << "Data: " << endl;
-		cout << "Explosions: " << explosions << endl;
-		cout << "Split left: " << splitL << endl;
-		cout << "Split right: " << splitR << endl;
-		cout << "Look low: " << lookingForLow << endl;
-		cout << "Found low: " << foundLow << endl;
-		cout << "Changed first: " << changedFirst << endl;
-		cout << "Dismissed lows: " << dismissed << endl;
-		cout << "Explosions handled: " << explosionHandledCount << endl;
-
-		cout << endl << endl << "Next iteration: " << endl;
-
+		node sumNode = nodes[i];
+		for (int j = 0; j < nodes.size(); j++) {
+			if (i == j)
+				continue;
+			node addNode = add(sumNode, nodes[j]);
+			reduce(addNode);
+			long long int addNodeMag = getMagnitude(addNode);
+			if (highestMag < addNodeMag)
+				highestMag = addNodeMag;
+		}
 	}
 
+	for (int i = nodes.size() - 1; i > 0; i--)
+	{
+		node sumNode = nodes[i];
+		for (int j = nodes.size() - 1; j > 0; j--) {
+			if (i == j)
+				continue;
+			node addNode = add(sumNode, nodes[j]);
+			reduce(addNode);
+			long long int addNodeMag = getMagnitude(addNode);
+			if (highestMag < addNodeMag)
+				highestMag = addNodeMag;
+		}
+	}
 
-	long long int mag = getMagnitude(sumNode);
-
-
-	std::cout << "Final magnitude is: " << mag;
+	std::cout << "Final magnitude is: " << highestMag;
 }
 
 long long int getMagnitude(node& input)
@@ -120,9 +99,6 @@ node split(int input) {
 	newNode.secondLit = input % (first)+first;
 	return newNode;
 }
-
-//bool explodeChanged = false;
-//bool splitChanged = false;
 
 int changeLower = -1;
 int changeHigher = -1;
@@ -154,36 +130,8 @@ void reduceNode(node& input, int level)
 			changed = true;
 			return;
 		}
-		//else
-		//return;
 	}
 
-	//split
-	/*if (!changed) {
-		if (input.firstLit > -1 && input.firstLit > 9)
-		{
-			node newNode = split(input.firstLit);
-			newNode.id = ++nodeId;
-			vector<node> newNodes;
-			newNodes.push_back(newNode);
-			for (node n : input.nodes)
-				newNodes.push_back(n);
-			input.nodes = newNodes;
-			input.firstLit = -1;
-			changed = true;
-		}
-		else if (input.secondLit > -1 && input.secondLit > 9)
-		{
-			node newNode = split(input.secondLit);
-			newNode.id = ++nodeId;
-			input.nodes.push_back(newNode);
-			input.secondLit = -1;
-			changed = true;
-		}
-	}
-
-	if (splitting)
-		return;*/
 	if (changed && changeHigher == -1)
 		return;
 
@@ -193,11 +141,6 @@ void reduceNode(node& input, int level)
 		input.firstLit += changeHigher;
 		changeHigher = -1;
 	}
-	/*else if (input.secondLit != -1 && changeHigher != -1)
-	{
-		input.secondLit += changeHigher;
-		changeHigher = -1;
-	}*/
 
 	std::vector<int> removeElements;
 	bool explosionImmunity = false;
@@ -209,7 +152,6 @@ void reduceNode(node& input, int level)
 			removeElements.push_back(0);
 			input.firstLit = 0;
 			explosionHandled = true;
-			//explosionImmunity = true;
 			if (input.secondLit != -1 && changeHigher != -1) {
 				input.secondLit += changeHigher;
 				changeHigher = -1;
@@ -260,19 +202,9 @@ void reduceNode(node& input, int level)
 		changeFirst = false;
 		lastNumberId = input.id;
 	}
-	/*if (!explosionImmunity && input.secondLit != -1 && changeHigher != -1)
-	{
-		input.secondLit += changeHigher;
-		changeHigher = -1;
-	}*/
 
 	for (int i = removeElements.size() - 1; i >= 0; i--)
 		input.nodes.erase(input.nodes.begin() + removeElements[i]);
-
-
-	//if (!explosionImmunity && (input.secondLit != -1 || input.firstLit != -1))
-	//	lastNumberId = input.id;
-
 
 }
 
@@ -366,11 +298,6 @@ void reduce(node& input)
 
 	while (true) {
 		changed = false;
-		/*if (input.firstLit == -1)
-			reduceNode(input.nodes[0], level + 1);
-		if (input.secondLit == -1)
-			input.nodes.size() > 1 ? reduceNode(input.nodes[1], level + 1) : reduceNode(input.nodes[0], level + 1);
-			*/
 		reduceNode(input, level);
 
 		if (changeId != -1) {
@@ -393,9 +320,6 @@ void reduce(node& input)
 		if (debugString == previousDebugString)
 			break;
 		previousDebugString = debugString;
-		//changed = explodeChanged || splitChanged;
-		//explodeChanged = false;
-		//splitChanged = false;
 		changeLower = -1;
 		changeHigher = -1;
 		lastNumberId = -1;
@@ -460,142 +384,3 @@ void parseInput()
 		nodes.push_back(parseInputString(i));
 	}
 }
-
-/*string add(string first, string second)
-{
-	return ("[" + first + "," + second + "]");
-}
-
-void reduce(string& input)
-{
-	bool changed = true;
-	while (changed)
-	{
-		changed = false;
-		int openParams = 0;
-		int posLastOpen = -1;
-		for (int i = 0; i < input.size(); i++)
-		{
-			if (input[i] == '[') {
-				openParams++;
-				posLastOpen = i;
-			}
-			if (input[i] == ']') {
-				if (openParams >= 5)
-				{
-					string preCalcStr = input.substr(0, posLastOpen);
-					string calcStr = input.substr(posLastOpen, i - posLastOpen + 1);
-					string postCalcStr = input.size() > i + 1 ? input.substr(i + 1) : "";
-					int first = stoi(calcStr.substr(1, calcStr.find(',')));
-					int second = stoi(calcStr.substr(calcStr.find(',') + 1));
-
-					int locationLastDigit = -1;
-					for (int j = 0; j < preCalcStr.size(); j++)
-					{
-						if (isdigit(preCalcStr[j]))
-							locationLastDigit = j;
-					}
-
-					string preStr, postStr;
-					if (locationLastDigit != -1)
-					{
-						string prePreStr = preCalcStr.substr(0, locationLastDigit);
-						int add = stoi(preCalcStr.substr(locationLastDigit, 1)) + first;
-						string postPreStr = preCalcStr.substr(locationLastDigit + 1);
-						preStr = prePreStr + to_string(add) + postPreStr;
-					}
-					else
-						preStr = preCalcStr;
-
-					int locationNextDigit = -1;
-					for (int j = 0; j < postCalcStr.size(); j++)
-					{
-						if (isdigit(postCalcStr[j])) {
-							locationNextDigit = j;
-							break;
-						}
-					}
-
-					if (locationNextDigit != -1)
-					{
-						string prePostStr = postCalcStr.substr(0, locationNextDigit);
-						int add = stoi(postCalcStr.substr(locationNextDigit, 1)) + second;
-						string postPostStr = postCalcStr.substr(locationNextDigit + 1);
-						postStr = prePostStr + to_string(add) + postPostStr;
-					}
-					else
-						postStr = postCalcStr;
-
-					input = preStr + "0" + postStr;
-
-					changed = true;
-					break;
-				}
-				else
-					openParams--;
-			}
-			if (isdigit(input[i]))
-			{
-				int j = i;
-				string num = input.substr(i, 1);
-				while (isdigit(input[++j]))
-					num += input.substr(j, 1);
-				if (num.size() > 1) {
-					//split
-					int numInt = stoi(num);
-					int first = numInt / 2;
-					int second = numInt % (first)+first;
-					string preStr = input.substr(0, i);
-					string postStr = input.substr(i + num.size());
-					input = preStr + "[" + to_string(first) + "," + to_string(second) + "]" + postStr;
-					changed = true;
-					break;
-				}
-			}
-		}
-	}
-}
-
-int getMagnitude(std::string input)
-{
-	bool changed = true;
-	string modInput = input;
-	while (changed)
-	{
-		changed = false;
-		int posLastOpen = -1;
-
-		for (int i = 0; i < modInput.size(); i++)
-		{
-			if (modInput[i] == '[')
-				posLastOpen = i;
-			if (modInput[i] == ']')
-			{
-				string preStr = modInput.substr(0, posLastOpen);
-				string calcStr = modInput.substr(posLastOpen, i - posLastOpen);
-				string postStr = modInput.size() > i + 1 ? modInput.substr(i + 1) : "";
-				int first = stoi(calcStr.substr(1, calcStr.find(','))) * 3;
-				int second = stoi(calcStr.substr(calcStr.find(',') + 1)) * 2;
-
-				modInput = preStr + to_string(first + second) + postStr;
-				changed = true;
-				break;
-			}
-		}
-	}
-
-	return stoi(modInput);
-}
-
-vector<string> parseInput()
-{
-	vector<string> inputs;
-	std::string input;
-	while (std::cin >> input && input != "eof")
-	{
-		inputs.push_back(input);
-	}
-
-	return inputs;
-}
-*/
